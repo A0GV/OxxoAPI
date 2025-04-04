@@ -7,13 +7,16 @@ public class npc
 	public string textoparamaladecision {get;set;}
 	public string expediente {get;set;}
 	public string local {get;set;}
+	public int id_pregunta{get;set;}
 
-    	public npc(int id_npc_,byte es_bueno_,string textoparamaladecision_,string expediente_,string local_)
+	public npc(){}
+    	public npc(int id_npc_,byte es_bueno_,string textoparamaladecision_,string expediente_,string local_, int id_pregunta_)
 	{
 		this.id_npc = id_npc_;
 		this.es_bueno = es_bueno_;
 		this.textoparamaladecision = textoparamaladecision_;
 		this.expediente = expediente_;
 		this.local = local_;
+		this.id_pregunta=id_pregunta_;
 	}
 }
