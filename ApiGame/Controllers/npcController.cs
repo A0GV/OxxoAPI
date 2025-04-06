@@ -16,8 +16,8 @@ public class npcController : ControllerBase
         using var conexion = new MySqlConnection(conection);
         conexion.Open();
         MySqlCommand cmd = new MySqlCommand(
-            @"SELECT * from npc", conexion);
-
+            @"SELECT * from npc Where id_npc =@id", conexion);
+            cmd.Parameters.AddWithValue("@id",id);
         using var reader = cmd.ExecuteReader();
         if (reader.Read())
         {
