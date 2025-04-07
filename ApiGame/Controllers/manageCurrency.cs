@@ -44,7 +44,7 @@ public class manageCurrency : ControllerBase
 
     [HttpPost("AgregarDatosJuego")]
     // Agrega datos del juego usando el usuario activo
-    public void AgregarDatosJuego([FromBody] datosJuego datos)
+    public void AgregarDatosJuego([FromForm] datosJuego datos)
     {
         string conection = "Server=construcciondesoftwate-databaselibroprueba.i.aivencloud.com;Port=15400;Database=oxxodb;Uid=avnadmin;Pwd=AVNS_EbD2wE2Jb0yXJYlPLsE;SslMode=Required;SslCa=ApiGame/ca.pem";
         using var conexion = new MySqlConnection(conection);
