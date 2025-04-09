@@ -42,4 +42,30 @@ public class LoginController : ControllerBase
         }
         return userId;
     }
+
+    [HttpGet("datosSkin")]
+    public usuario_skin GetSkinInfo(int userId)
+    {
+        usuario_skin data=null;
+
+        using (MySqlConnection conexion = new MySqlConnection(_connectionString))
+        {
+            conexion.Open();
+            MySqlCommand cmd = new MySqlCommand(
+                "SELECT id_skin, isActive FROM usuario_skin WHERE id_usuario = @userId and isActive =1;", conexion);
+            cmd.Parameters.AddWithValue("@userId", userId);
+
+            using (var reader = cmd.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    data=new(
+                    reader.GetInt32("id_skin"),
+                    reader.GetInt32("isActive")
+                    );
+                }
+            }
+        }
+        return data;
+    }
 }
