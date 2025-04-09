@@ -77,7 +77,7 @@ public class manageCurrency : ControllerBase
     }
 
     [HttpGet("GetElotesTotal")]
-    // Regresa días jugados basado en id_usuario del jugador y el id_juego que está jugando
+    // Regresa elotes totales de usuario, y 0 si no ha jugado antes
     public int GetElotesTotal(int id_logged)
     {
         string conection = "Server=construcciondesoftwate-databaselibroprueba.i.aivencloud.com;Port=15400;Database=oxxodb;Uid=avnadmin;Pwd=AVNS_EbD2wE2Jb0yXJYlPLsE;SslMode=Required;SslCa=ApiGame/ca.pem";
@@ -106,6 +106,38 @@ public class manageCurrency : ControllerBase
         }
 
         return elotesTotales; 
+    }
+
+    [HttpGet("GetExpTotal")]
+    // Regresa exp de usuario y 0 si no ha jugado antes
+    public int GetExpTotal(int id_logged)
+    {
+        string conection = "Server=construcciondesoftwate-databaselibroprueba.i.aivencloud.com;Port=15400;Database=oxxodb;Uid=avnadmin;Pwd=AVNS_EbD2wE2Jb0yXJYlPLsE;SslMode=Required;SslCa=ApiGame/ca.pem";
+        using var conexion = new MySqlConnection(conection);
+        conexion.Open();
+
+        // Comando
+        MySqlCommand cmd = new MySqlCommand(@"
+            SELECT u.id_usuario, IFNULL(SUM(h.exp), 0) AS exp_total
+            FROM usuario u
+            LEFT JOIN usuario_historial uh ON u.id_usuario = uh.id_usuario
+            LEFT JOIN historial h ON uh.id_historial = h.id_historial
+            WHERE u.id_usuario = @id_logged
+            GROUP BY u.id_usuario;", conexion);
+        
+        // Inyecta parametro de usuario para buscarlo
+        cmd.Parameters.AddWithValue("@id_logged", id_logged);
+        
+        using var reader = cmd.ExecuteReader();
+        int expTotal = 0; // Temporary sets to 0
+
+        // Retrieves veces_jugado
+        if (reader.Read())
+        {
+            expTotal = reader.GetInt32("exp_total");
+        }
+
+        return expTotal; 
     }
 
     [HttpPost("LocalAgregarDatosJuego")]
