@@ -10,7 +10,6 @@ namespace ApiGame.Controllers;
 public class manageCurrency : ControllerBase
 {
     [HttpGet("GetDaysPlayed")]
-
     // Regresa días jugados basado en id_usuario del jugador y el id_juego que está jugando
     public int GetDiasJugado(int id_logged, int id_jugando)
     {
@@ -75,6 +74,38 @@ public class manageCurrency : ControllerBase
             cmdUH.ExecuteNonQuery();
         
         conexion.Close();
+    }
+
+    [HttpGet("GetElotesTotal")]
+    // Regresa días jugados basado en id_usuario del jugador y el id_juego que está jugando
+    public int GetElotesTotal(int id_logged)
+    {
+        string conection = "Server=construcciondesoftwate-databaselibroprueba.i.aivencloud.com;Port=15400;Database=oxxodb;Uid=avnadmin;Pwd=AVNS_EbD2wE2Jb0yXJYlPLsE;SslMode=Required;SslCa=ApiGame/ca.pem";
+        using var conexion = new MySqlConnection(conection);
+        conexion.Open();
+
+        // Comando
+        MySqlCommand cmd = new MySqlCommand(@"
+            SELECT u.id_usuario, IFNULL(SUM(h.monedas), 0) AS elotes_totales
+            FROM usuario u
+            LEFT JOIN usuario_historial uh ON u.id_usuario = uh.id_usuario
+            LEFT JOIN historial h ON uh.id_historial = h.id_historial
+            WHERE u.id_usuario = @id_logged
+            GROUP BY u.id_usuario;", conexion);
+        
+        // Inyecta parametro de usuario para buscarlo
+        cmd.Parameters.AddWithValue("@id_logged", id_logged);
+        
+        using var reader = cmd.ExecuteReader();
+        int elotesTotales = 0; // Temporary sets to 0
+
+        // Retrieves veces_jugado
+        if (reader.Read())
+        {
+            elotesTotales = reader.GetInt32("elotes_totales");
+        }
+
+        return elotesTotales; 
     }
 
     [HttpPost("LocalAgregarDatosJuego")]
