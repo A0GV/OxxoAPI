@@ -104,9 +104,11 @@ public class LoginController : ControllerBase
             var cmd = new MySqlCommand(@"Update usuario_skin SET isActive = 0 WHERE id_usuario = @userId AND id_skin = !@id_skin;", conexion);
             cmd.Parameters.AddWithValue("@userId", userId);
             cmd.Parameters.AddWithValue("@id_skin", id_skin);
-            cmd.ExecuteNonQuery();
+            cmd .ExecuteNonQuery();
 
         }
+
+        
 
 
     }
