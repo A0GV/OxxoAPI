@@ -6,7 +6,7 @@ using System.Data;
 
 namespace ApiGame.Controllers;
 [ApiController]
-[Route("controller")]
+[Route("[controller]")]
 public class leaderboardController : ControllerBase
 {
     private readonly string connection = "Server=construcciondesoftwate-databaselibroprueba.i.aivencloud.com;Port=15400;Database=oxxodb;Uid=avnadmin;Pwd=AVNS_EbD2wE2Jb0yXJYlPLsE;SslMode=Required;SslCa=ApiGame/ca.pem";
