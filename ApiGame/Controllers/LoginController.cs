@@ -51,41 +51,63 @@ public class LoginController : ControllerBase
         using (MySqlConnection conexion = new MySqlConnection(_connectionString))
         {
             conexion.Open();
-            MySqlCommand cmd = new MySqlCommand(
-                "SELECT id_skin, isActive FROM usuario_skin WHERE id_usuario = @userId and isActive =1;", conexion);
-            cmd.Parameters.AddWithValue("@userId", userId);
-
-            using (var reader = cmd.ExecuteReader())
+            try
             {
-                if (reader.Read())
+                MySqlCommand cmd = new MySqlCommand(
+                    "SELECT id_skin, isActive FROM usuario_skin WHERE id_usuario = @userId and isActive =1;", conexion);
+                cmd.Parameters.AddWithValue("@userId", userId);
+
+                using (var reader = cmd.ExecuteReader())
                 {
-                    data = new(
-                    reader.GetInt32("id_skin"),
-                    reader.GetInt32("isActive")
-                    );
+                    if (reader.Read())
+                    {
+                        data = new(
+                        reader.GetInt32("id_skin"),
+                        reader.GetInt32("isActive")
+                        );
+                    }
+                    else
+                    {
+                        throw new Exception("No Content - 204");
+                    }
                 }
+
+
             }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("No Content - 204"))
+                {
+                    // Realizar un INSERT si no hay contenido
+                    var cmd = new MySqlCommand(
+                        "INSERT INTO usuario_skin (id_usuario, id_skin, isActive) VALUES (@userId, 1, 1);", conexion);
+                    cmd.Parameters.AddWithValue("@userId", userId);
+                    cmd.ExecuteNonQuery();
+                }
+                GetSkinInfo(userId);
+            }
+            return data;
+
         }
-        return data;
     }
 
-    [HttpPost("primeraCompra")]
+    [HttpPost("NewCompra")]
     public void postNewCompra(int userId, int id_skin)
     {
         using (MySqlConnection conexion = new MySqlConnection(_connectionString))
         {
             conexion.Open();
-            var postCompra = new MySqlCommand(
-                @"Insert into usuario_skin(id_usuario, id_skin, isActive) values(@userId, @id_skin, 0);", conexion);
-
-            postCompra.Parameters.AddWithValue("@userId", userId);
-            postCompra.Parameters.AddWithValue("@id_skin", id_skin);
-
-            postCompra.ExecuteNonQuery();
-
+            var Compra = new MySqlCommand(
+                @"Insert into usuario_skin(id_usuario, id_skin, isActive) values(@userId, @id_skin, 1);", conexion);
+            Compra.Parameters.AddWithValue("@userId", userId);
+            Compra.Parameters.AddWithValue("@id_skin", id_skin);
+            Compra.ExecuteNonQuery();
+            Compra.CommandText = @"Update usuario_skin SET isActive = 1 WHERE id_usuario = @userId AND id_skin = @id_skin;";
+            Compra.CommandText = @"Update usuario_skin SET isActive = 0 WHERE id_usuario = @userId AND id_skin != @id_skin;";
+            Compra.ExecuteNonQuery();
         }
     }
-    [HttpPut("ACtualizar activo")]
+    [HttpPut("Actualizar activo")]
     public void activoActual(int userId, int id_skin)
     {
         using (MySqlConnection conexion = new MySqlConnection(_connectionString))
@@ -96,19 +118,12 @@ public class LoginController : ControllerBase
             cmd.Parameters.AddWithValue("@id_skin", id_skin);
             cmd.ExecuteNonQuery();
 
-        }
-
-        using (MySqlConnection conexion = new MySqlConnection(_connectionString))
-        {
-            conexion.Open();
-            var cmd = new MySqlCommand(@"Update usuario_skin SET isActive = 0 WHERE id_usuario = @userId AND id_skin = !@id_skin;", conexion);
-            cmd.Parameters.AddWithValue("@userId", userId);
-            cmd.Parameters.AddWithValue("@id_skin", id_skin);
-            cmd .ExecuteNonQuery();
+            cmd.CommandText = @"Update usuario_skin SET isActive = 0 WHERE id_usuario = @userId AND id_skin != @id_skin;";
+            cmd.ExecuteNonQuery();
 
         }
 
-        
+
 
 
     }
