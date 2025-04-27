@@ -18,10 +18,10 @@ public class leaderboardController : ControllerBase
         using var conexion = new MySqlConnection(connection);
         conexion.Open();
         MySqlCommand cmd = new MySqlCommand(
-            @"select u.nombre, u.apellido_mat, sum(h.exp) as `exp`  from usuario u 
+            @"select u.nombre, u.apellido_pat, sum(h.exp) as `exp`  from usuario u 
             join usuario_historial uh on uh.id_usuario = u.id_usuario
             join historial h on h.id_historial = uh.id_historial
-            group by u.id_usuario, u.nombre, u.apellido_mat
+            group by u.id_usuario, u.nombre, u.apellido_pat
             order by `exp` desc
             limit 5;", conexion);
         using var reader = cmd.ExecuteReader();
@@ -29,7 +29,7 @@ public class leaderboardController : ControllerBase
         {
             var per = new Leadearboard(
                 reader.GetString("nombre"),
-                reader.GetString("apellido_mat"),
+                reader.GetString("apellido_pat"),
                 reader.GetInt32("exp")
             );
             personas.Add(per);
