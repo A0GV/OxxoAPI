@@ -143,7 +143,7 @@ public class LoginController : ControllerBase
     }
 
     [HttpPut("Actualizaractivo")]
-    public void activoActual([FromForm] SkinUpdateModel model)
+    public void activoActual([FromBody] SkinUpdateModel model)
     {
 
         using (MySqlConnection conexion = new MySqlConnection(_connectionString))
