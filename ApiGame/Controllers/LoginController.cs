@@ -43,7 +43,41 @@ public class LoginController : ControllerBase
         return userId;
     }
 
-    [HttpGet("datosSkin")]
+    [HttpGet("AlldatosSkin")]
+    public List<usuario_skin> GetAllSkinInfo(int userId)
+    {
+        var data = new List<usuario_skin>();
+
+        using (MySqlConnection conexion = new MySqlConnection(_connectionString))
+        {
+            conexion.Open();
+
+            MySqlCommand cmd = new MySqlCommand(
+                "SELECT s.nombre_skin, us.isActive FROM usuario_skin us JOIN skins s ON us.id_skin = s.id_skin WHERE us.id_usuario = @userId;", conexion);
+            cmd.Parameters.AddWithValue("@userId", userId);
+
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    data.Add(new usuario_skin(
+                        reader.GetInt32("nombre_skin"),
+                        reader.GetInt32("isActive")
+                    ));
+                }
+            }
+
+            // Si no hay resultados, hacer el insert y volver a consultar
+            if (data.Count == 0)
+            {
+                throw new Exception("No Content - 204");
+            }
+
+            return data;
+        }
+    }
+
+    [HttpGet("UniquedatosSkin")]
     public usuario_skin GetSkinInfo(int userId)
     {
         usuario_skin data = null;
@@ -107,24 +141,26 @@ public class LoginController : ControllerBase
             Compra.ExecuteNonQuery();
         }
     }
-    [HttpPut("Actualizar activo")]
-    public void activoActual(int userId, int id_skin)
+
+    [HttpPut("Actualizaractivo")]
+    public void activoActual([FromForm] SkinUpdateModel model)
     {
+
         using (MySqlConnection conexion = new MySqlConnection(_connectionString))
         {
+
+
             conexion.Open();
             var cmd = new MySqlCommand(@"Update usuario_skin SET isActive = 1 WHERE id_usuario = @userId AND id_skin = @id_skin;", conexion);
-            cmd.Parameters.AddWithValue("@userId", userId);
-            cmd.Parameters.AddWithValue("@id_skin", id_skin);
+            cmd.Parameters.AddWithValue("@userId", model.userId);
+            cmd.Parameters.AddWithValue("@id_skin", model.id_skin);
             cmd.ExecuteNonQuery();
 
             cmd.CommandText = @"Update usuario_skin SET isActive = 0 WHERE id_usuario = @userId AND id_skin != @id_skin;";
             cmd.ExecuteNonQuery();
 
+
         }
-
-
-
-
     }
 }
+
